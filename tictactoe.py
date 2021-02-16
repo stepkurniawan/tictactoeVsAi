@@ -3,6 +3,7 @@ Tic Tac Toe Player
 """
 
 import math
+import copy
 
 X = "X"
 O = "O"
@@ -78,22 +79,34 @@ def actions(board):
 
 def result(board, action):
     """
-    Returns the board that results from making move (i, j) on the board.
+    The result function takes a board and an action as input, 
+    and should return a new board state, without modifying the original board.
+        Importantly, the original board should be left unmodified: 
+    since Minimax will ultimately require considering many different board states during its computation. 
+    This means that simply updating a cell in board itself is not a correct implementation of the result function. 
+    You’ll likely want to make a deep copy of the board first before making any changes.
     """
+    #create a deep copy of board
+    deep_board = copy.deepcopy(board)
+
     i, j = action
     #check which player makes the move
     current_player = player(board)
     #print(current_player)
     #check if action cell is not empty
-    if (board[i][j]) != EMPTY:
+    if (deep_board[i][j]) != EMPTY:
         print("cell", i, j, "has been filled")
+        #If action is not a valid action for the board, your program should raise an exception.
         #raise ValueError("Illegal Move")
     #change the cell with the symbol of the player
     else: 
-        board[i][j] = current_player
+        deep_board[i][j] = current_player
     #print(board)
-    #return the board with the change
-    return board
+    """
+    The returned board state should be the board that would result from taking the original input board, 
+    and letting the player whose turn it is make their move at the cell indicated by the input action.
+    """
+    return deep_board
 
 
 def winner(board):
@@ -120,6 +133,7 @@ def winner(board):
             elif (str(board[2][0]) == str(board[1][1]) == str(board[0][2]) == symbol):
                 return symbol
             else:
+                print("winner(board) = None")
                 return None
 
     #if there is no winner yet, return None
@@ -157,11 +171,9 @@ def minimax(board):
     Returns the optimal action for the current player on the board.
     """
     current_player = player(board)
-    if terminal(board)==True:
-        return None
 
-    elif (current_player == X):
-        max_action = (0,0)
+    if (current_player == X):
+        max_action = None
         v = -9999
         for action in actions (board):
             if (v < min_value( result( board, action))): 
@@ -171,8 +183,8 @@ def minimax(board):
                 max_action = action
         return max_action
     
-    elif (current_player != X):
-        min_action = (2,2)
+    else:
+        min_action = None
         v = 9999
         for action in actions (board):
             if (v > max_value( result( board, action))): 
@@ -189,10 +201,13 @@ def max_value(board):
     Return the max value of a set of result from actions
     """
     v = -9999
-    
+
+    if terminal(board) == True:
+        print("terminal board:", terminal(board))
+    return utility(board)
+
     for action in actions(board):
         v = max(v, min_value( result(board, action)))
-    print("value v:", v)
     return v
 
 def min_value(board):
@@ -201,7 +216,10 @@ def min_value(board):
     """
     v = 9999
 
+    if terminal(board) == True:
+        print("terminal board:", terminal(board))
+    return utility(board)
+
     for action in actions(board):
         v = min(v, max_value( result(board, action) ))
-    print("value v:", v)
     return v
