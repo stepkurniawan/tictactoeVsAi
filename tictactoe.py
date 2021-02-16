@@ -131,10 +131,7 @@ def terminal(board):
     Returns True if game is over, False otherwise.
     """
     #if board is full, game over
-    if num_empty_cells <= 0:
-        return True
-    #check if there is a winner
-    elif winner(board)!=None:
+    if winner(board)!=None or (num_empty_cells <= 0 and winner(board)==None):
         return True
     else: 
         return False
